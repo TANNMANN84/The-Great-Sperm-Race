@@ -3,124 +3,394 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Great Sperm Race - Educational Quiz</title>
+    <title>The Great Sperm Race: Educational Challenge</title>
+    <!-- Load Tailwind CSS for modern styling --><script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        // Custom colors for an "Oceanic Biology" theme
+                        'theme-primary': '#0D7B8E', // Deep Teal/Cyan
+                        'theme-secondary': '#10B981', // Emerald Green (kept for pass)
+                        'theme-background': '#F0F8FA', // Very light blue-grey
+                        'theme-border': '#CCE5E8', // Lighter teal for borders
+                        'theme-text-dark': '#1F2937', // Darker text
+                        'theme-text-light': '#4B5563', // Lighter text
+                        'theme-fail': '#EF4444', // Red for errors (kept)
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        /* CSS to control layout and modal visibility */
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
+        /* Custom radio button styling */
+        .quiz-option {
+            cursor: pointer;
+            padding: 10px;
+            margin-bottom: 8px;
+            border: 1px solid var(--tw-theme-border); /* Use custom border color */
+            border-radius: 0.5rem;
+            transition: background-color 0.2s;
+            display: block; /* make the label cover the full width */
         }
-        #game-container, #quiz-modal, #results {
-            margin: 20px auto;
-            max-width: 800px;
+        .quiz-option:hover {
+            background-color: #e0f2f7; /* Very light cyan for hover */
         }
-        #game-container {
-            /* Initially hidden until the user starts */
-            display: none;
+        .quiz-option input[type="radio"] {
+            margin-right: 10px;
+            accent-color: var(--tw-theme-primary); /* Use primary color for accent */
         }
-        #quiz-modal {
-            padding: 20px;
-            border: 1px solid #ccc;
-            background-color: #f9f9f9;
-            text-align: left;
-            /* Initially hidden */
-            display: none;
+        .quiz-stage {
+            /* Styles for the individual quiz sections */
+            transition: opacity 0.3s ease;
         }
-        .correct { color: green; font-weight: bold; }
-        .incorrect { color: red; font-weight: bold; }
     </style>
 </head>
-<body>
+<body class="bg-theme-background min-h-screen p-4 flex flex-col items-center font-sans text-theme-text-dark">
 
-    <h1 id="page-title">The Great Sperm Race: Start</h1>
+    <div class="w-full max-w-4xl">
+        <h1 id="page-title" class="text-4xl font-extrabold text-theme-primary text-center mb-6">The Great Sperm Race: Educational Challenge</h1>
 
-    <div id="start-screen">
-        <p>Your goal is to successfully guide the sperm to the egg. When you reach the final screen, press the "I Completed the Race" button below the game.</p>
-        <button onclick="startGame()">Start The Great Sperm Race</button>
+        <!-- 1. Start Screen --><div id="start-screen" class="bg-white p-8 rounded-xl shadow-lg border border-theme-border">
+            <h2 class="text-2xl font-semibold text-theme-text-dark mb-4">Welcome to the Race for Life</h2>
+            <p class="text-theme-text-light mb-6">Your task is to successfully guide the sperm to the egg, navigating the four major obstacles in the female reproductive system. Once the game indicates a successful fertilisation, press the button below the game screen to proceed to the quiz.</p>
+            <button onclick="startGame()" class="w-full py-3 px-4 bg-theme-primary text-white font-bold rounded-lg hover:bg-cyan-800 transition duration-150 shadow-md">
+                Start The Great Sperm Race
+            </button>
+        </div>
+
+        <!-- 2. Game Container (Hidden initially) --><div id="game-container" class="mt-8 hidden">
+            <!-- Ruffle will load the SWF file here using the data-swf attribute --><div id="sperm-game-player"
+                 class="w-[800px] h-[600px] mx-auto rounded-xl shadow-lg border border-theme-border bg-black flex items-center justify-center"
+                 data-swf="great-sperm-race.swf">
+                <p class="text-white">Loading Flash game via Ruffle...</p>
+            </div>
+
+            <!-- Manual completion trigger button --><div class="text-center mt-4">
+                <button onclick="showQuiz()" class="py-3 px-8 bg-theme-primary text-white font-bold rounded-lg hover:bg-cyan-800 transition duration-150 shadow-md">
+                    I Completed the Race - Go to Quiz
+                </button>
+            </div>
+        </div>
+
+        <!-- 3. Quiz Modal (Hidden initially) -->
+        <div id="quiz-modal" class="mt-8 hidden bg-white p-8 rounded-xl shadow-lg border border-theme-border">
+            <h2 class="text-2xl font-semibold text-theme-text-dark mb-6">Post-Race Assessment</h2>
+            <form id="quiz-form" class="space-y-6">
+
+                <!-- Stage 1: Vagina (Q1-Q5) -->
+                <div id="quiz-stage-1" class="quiz-stage">
+                    <h3 class="text-xl font-bold text-theme-primary border-b border-theme-primary pb-2 mt-4">Stage 1 of 4: The Vagina</h3>
+                    <div class="space-y-4 pt-4">
+                        <div class="border-b border-gray-200 pb-4">
+                            <p class="text-lg font-medium mb-3">Q1 (Vagina): What is the primary chemical barrier that kills most sperm cells immediately upon entry?</p>
+                            <label class="quiz-option"><input type="radio" name="q1" value="A"> High estrogen levels</label>
+                            <label class="quiz-option"><input type="radio" name="q1" value="B"> The highly acidic environment</label>
+                            <label class="quiz-option"><input type="radio" name="q1" value="C"> Smooth muscle contractions</label>
+                            <label class="quiz-option"><input type="radio" name="q1" value="D"> Lack of oxygen</label>
+                        </div>
+
+                        <div class="border-b border-gray-200 pb-4">
+                            <p class="text-lg font-medium mb-3">Q2 (Vagina): What is the function of the fluid released with sperm (seminal fluid) in the vagina?</p>
+                            <label class="quiz-option"><input type="radio" name="q2" value="A"> To activate the sperm's tail movement</label>
+                            <label class="quiz-option"><input type="radio" name="q2" value="B"> To buffer the acidic $\text{pH}$ of the vagina</label>
+                            <label class="quiz-option"><input type="radio" name="q2" value="C"> To digest the egg's outer layer</label>
+                            <label class="quiz-option"><input type="radio" name="q2" value="D"> To attract white blood cells</label>
+                        </div>
+
+                        <div class="border-b border-gray-200 pb-4">
+                            <p class="text-lg font-medium mb-3">Q3 (Vagina): Approximately what percentage of sperm survive the first stage (the vagina)?</p>
+                            <label class="quiz-option"><input type="radio" name="q3" value="A"> About $50\%$</label>
+                            <label class="quiz-option"><input type="radio" name="q3" value="B"> Less than $1\%$</label>
+                            <label class="quiz-option"><input type="radio" name="q3" value="C"> Nearly $100\%$</label>
+                            <label class="quiz-option"><input type="radio" name="q3" value="D"> About $10\%$</label>
+                        </div>
+
+                        <div class="border-b border-gray-200 pb-4">
+                            <p class="text-lg font-medium mb-3">Q4 (Vagina): What helps the surviving sperm move through the vagina and towards the cervix?</p>
+                            <label class="quiz-option"><input type="radio" name="q4" value="A"> Random floating and diffusion</label>
+                            <label class="quiz-option"><input type="radio" name="q4" value="B"> Negative electrical charges</label>
+                            <label class="quiz-option"><input type="radio" name="q4" value="C"> The sperm's own flagellum (tail) movement</label>
+                            <label class="quiz-option"><input type="radio" name="q4" value="D"> Hormonal shifts that pull the sperm</label>
+                        </div>
+                        
+                        <div class="pb-4">
+                            <p class="text-lg font-medium mb-3">Q5 (Vagina): Why is the sperm race game a good analogy for natural selection, even at this early stage?</p>
+                            <label class="quiz-option"><input type="radio" name="q5" value="A"> Because only the smallest sperm are allowed to proceed.</label>
+                            <label class="quiz-option"><input type="radio" name="q5" value="B"> Because only the fittest sperm survive the harsh conditions to compete further.</label>
+                            <label class="quiz-option"><input type="radio" name="q5" value="C"> Because the sperm can change their genetic code to adapt.</label>
+                            <label class="quiz-option"><input type="radio" name="q5" value="D"> Because there is a clear finish line.</label>
+                        </div>
+                    </div>
+                    <button type="button" onclick="nextStage()" class="w-full py-3 px-4 bg-theme-primary text-white font-bold rounded-lg hover:bg-cyan-800 transition duration-150 shadow-lg mt-4">Next Stage (Cervix)</button>
+                </div>
+
+                <!-- Stage 2: Cervix (Q6-Q10) -->
+                <div id="quiz-stage-2" class="quiz-stage hidden">
+                    <h3 class="text-xl font-bold text-theme-primary border-b border-theme-primary pb-2 mt-4">Stage 2 of 4: The Cervix</h3>
+                    <div class="space-y-4 pt-4">
+                        <div class="border-b border-gray-200 pb-4">
+                            <p class="text-lg font-medium mb-3">Q6 (Cervix): What substance acts as a physical filter or maze within the cervix, preventing many sperm from entering the uterus?</p>
+                            <label class="quiz-option"><input type="radio" name="q6" value="A"> The hymen</label>
+                            <label class="quiz-option"><input type="radio" name="q6" value="B"> Cervical mucus</label>
+                            <label class="quiz-option"><input type="radio" name="q6" value="C"> Endometrial lining</label>
+                            <label class="quiz-option"><input type="radio" name="q6" value="D"> Fibrous tissue</label>
+                        </div>
+
+                        <div class="border-b border-gray-200 pb-4">
+                            <p class="text-lg font-medium mb-3">Q7 (Cervix): Immune system cells (leukocytes) often engulf and destroy sperm in this region. Why does the female body treat sperm as invaders?</p>
+                            <label class="quiz-option"><input type="radio" name="q7" value="A"> Sperm cells are too large for the cervical opening.</label>
+                            <label class="quiz-option"><input type="radio" name="q7" value="B"> Sperm cells contain foreign $\text{DNA}$ and proteins that the immune system perceives as threats.</label>
+                            <label class="quiz-option"><input type="radio" name="q7" value="C"> Sperm cells carry diseases.</label>
+                            <label class="quiz-option"><input type="radio" name="q7" value="D"> The uterus has an allergic reaction to semen.</label>
+                        </div>
+
+                        <div class="border-b border-gray-200 pb-4">
+                            <p class="text-lg font-medium mb-3">Q8 (Cervix): The cervical mucus forms channels to guide sperm. When are these channels most open and welcoming to sperm?</p>
+                            <label class="quiz-option"><input type="radio" name="q8" value="A"> During menstruation</label>
+                            <label class="quiz-option"><input type="radio" name="q8" value="B"> During the pre-ovulation (follicular) phase</label>
+                            <label class="quiz-option"><input type="radio" name="q8" value="C"> Around the time of ovulation</label>
+                            <label class="quiz-option"><input type="radio" name="q8" value="D"> During the late luteal phase</label>
+                        </div>
+
+                        <div class="border-b border-gray-200 pb-4">
+                            <p class="text-lg font-medium mb-3">Q9 (Cervix): What is the physical principle behind the sperm's ability to swim against the fluid flow in the cervical channels?</p>
+                            <label class="quiz-option"><input type="radio" name="q9" value="A"> Magnetism</label>
+                            <label class="quiz-option"><input type="radio" name="q9" value="B"> Rheotaxis</label>
+                            <label class="quiz-option"><input type="radio" name="q9" value="C"> Gravitaxis</label>
+                            <label class="quiz-option"><input type="radio" name="q9" value="D"> Phototaxis</label>
+                        </div>
+
+                        <div class="pb-4">
+                            <p class="text-lg font-medium mb-3">Q10 (Cervix): The cervix acts as a key selection point. What biological quality is it testing or selecting for in the sperm?</p>
+                            <label class="quiz-option"><input type="radio" name="q10" value="A"> The sperm's ability to store food reserves.</label>
+                            <label class="quiz-option"><input type="radio" name="q10" value="B"> The sperm's speed and mobility (motility).</label>
+                            <label class="quiz-option"><input type="radio" name="q10" value="C"> The sperm's $\text{DNA}$ sequence.</label>
+                            <label class="quiz-option"><input type="radio" name="q10" value="D"> The colour of the sperm's tail.</label>
+                        </div>
+                    </div>
+                    <button type="button" onclick="nextStage()" class="w-full py-3 px-4 bg-theme-primary text-white font-bold rounded-lg hover:bg-cyan-800 transition duration-150 shadow-lg mt-4">Next Stage (Uterus)</button>
+                </div>
+
+                <!-- Stage 3: Uterus (Q11-Q15) -->
+                <div id="quiz-stage-3" class="quiz-stage hidden">
+                    <h3 class="text-xl font-bold text-theme-primary border-b border-theme-primary pb-2 mt-4">Stage 3 of 4: The Uterus</h3>
+                    <div class="space-y-4 pt-4">
+                        <div class="border-b border-gray-200 pb-4">
+                            <p class="text-lg font-medium mb-3">Q11 (Uterus): Once sperm reach the uterus, what force assists them in rapidly travelling towards the Fallopian tubes?</p>
+                            <label class="quiz-option"><input type="radio" name="q11" value="A"> The constant vibration of the uterine wall</label>
+                            <label class="quiz-option"><input type="radio" name="q11" value="B"> Rhythmic contractions of the muscular uterine wall (myometrium)</label>
+                            <label class="quiz-option"><input type="radio" name="q11" value="C"> Chemical repulsion from the wrong fallopian tube</label>
+                            <label class="quiz-option"><input type="radio" name="q11" value="D"> The sperm forming a single, fast-moving column</label>
+                        </div>
+
+                        <div class="border-b border-gray-200 pb-4">
+                            <p class="text-lg font-medium mb-3">Q12 (Uterus): What is the process called where the sperm undergoes final biochemical changes, making it capable of fertilising the egg?</p>
+                            <label class="quiz-option"><input type="radio" name="q12" value="A"> Activation</label>
+                            <label class="quiz-option"><input type="radio" name="q12" value="B"> Capacitation</label>
+                            <label class="quiz-option"><input type="radio" name="q12" value="C"> Hyper-motility</label>
+                            <label class="quiz-option"><input type="radio" name="q12" value="D"> Fertilisation</label>
+                        </div>
+
+                        <div class="border-b border-gray-200 pb-4">
+                            <p class="text-lg font-medium mb-3">Q13 (Uterus): A major challenge in the uterus is the 'wrong turn'. The egg is usually only released from one ovary. What percentage of sperm swim towards the empty Fallopian tube?</p>
+                            <label class="quiz-option"><input type="radio" name="q13" value="A"> About $10\%$</label>
+                            <label class="quiz-option"><input type="radio" name="q13" value="B"> Less than $5\%$</label>
+                            <label class="quiz-option"><input type="radio" name="q13" value="C"> Nearly $50\%$</label>
+                            <label class="quiz-option"><input type="radio" name="q13" value="D"> About $90\%$</label>
+                        </div>
+
+                        <div class="border-b border-gray-200 pb-4">
+                            <p class="text-lg font-medium mb-3">Q14 (Uterus): The egg releases chemical signals to attract sperm towards it. What is this directional guidance mechanism known as?</p>
+                            <label class="quiz-option"><input type="radio" name="q14" value="A"> Hydrotropism</label>
+                            <label class="quiz-option"><input type="radio" name="q14" value="B"> Thigmotaxis</label>
+                            <label class="quiz-option"><input type="radio" name="q14" value="C"> Chemotaxis</label>
+                            <label class="quiz-option"><input type="radio" name="q14" value="D"> Geotropism</label>
+                        </div>
+
+                        <div class="pb-4">
+                            <p class="text-lg font-medium mb-3">Q15 (Uterus): What term describes the period when the egg is viable and receptive to fertilisation?</p>
+                            <label class="quiz-option"><input type="radio" name="q15" value="A"> Menstruation</label>
+                            <label class="quiz-option"><input type="radio" name="q15" value="B"> The fertile window</label>
+                            <label class="quiz-option"><input type="radio" name="q15" value="C"> Lactation</label>
+                            <label class="quiz-option"><input type="radio" name="q15" value="D"> Zygote formation</label>
+                        </div>
+                    </div>
+                    <button type="button" onclick="nextStage()" class="w-full py-3 px-4 bg-theme-primary text-white font-bold rounded-lg hover:bg-cyan-800 transition duration-150 shadow-lg mt-4">Next Stage (Fallopian Tube)</button>
+                </div>
+                
+                <!-- Stage 4: Fallopian Tube (Q16-Q20) -->
+                <div id="quiz-stage-4" class="quiz-stage hidden">
+                    <h3 class="text-xl font-bold text-theme-primary border-b border-theme-primary pb-2 mt-4">Stage 4 of 4: The Fallopian Tube</h3>
+                    <div class="space-y-4 pt-4">
+                        <div class="border-b border-gray-200 pb-4">
+                            <p class="text-lg font-medium mb-3">Q16 (Fallopian Tube): What hair-like structures line the Fallopian tube and gently sweep the egg towards the uterus?</p>
+                            <label class="quiz-option"><input type="radio" name="q16" value="A"> Microvilli</label>
+                            <label class="quiz-option"><input type="radio" name="q16" value="B"> Fimbriae</label>
+                            <label class="quiz-option"><input type="radio" name="q16" value="C"> Cilia</label>
+                            <label class="quiz-option"><input type="radio" name="q16" value="D"> Flagella</label>
+                        </div>
+
+                        <div class="border-b border-gray-200 pb-4">
+                            <p class="text-lg font-medium mb-3">Q17 (Fallopian Tube): In which specific section of the Fallopian tube does the sperm usually encounter and fertilise the egg?</p>
+                            <label class="quiz-option"><input type="radio" name="q17" value="A"> The Isthmus (near the uterus)</label>
+                            <label class="quiz-option"><input type="radio" name="q17" value="B"> The Infundibulum (near the ovary)</label>
+                            <label class="quiz-option"><input type="radio" name="q17" value="C"> The Ampulla (the wide middle section)</label>
+                            <label class="quiz-option"><input type="radio" name="q17" value="D"> The Fimbriae (the very end)</label>
+                        </div>
+
+                        <div class="border-b border-gray-200 pb-4">
+                            <p class="text-lg font-medium mb-3">Q18 (Fallopian Tube): How long is the egg typically viable for fertilisation after it has been released from the ovary?</p>
+                            <label class="quiz-option"><input type="radio" name="q18" value="A"> Less than 5 hours</label>
+                            <label class="quiz-option"><input type="radio" name="q18" value="B"> Between $12$ and $24$ hours</label>
+                            <label class="quiz-option"><input type="radio" name="q18" value="C"> About 7 days</label>
+                            <label class="quiz-option"><input type="radio" name="q18" value="D"> Up to $72$ hours</label>
+                        </div>
+
+                        <div class="border-b border-gray-200 pb-4">
+                            <p class="text-lg font-medium mb-3">Q19 (Fallopian Tube): What is the name of the protective outer layer of the egg that the final surviving sperm must break through?</p>
+                            <label class="quiz-option"><input type="radio" name="q19" value="A"> Endometrium</label>
+                            <label class="quiz-option"><input type="radio" name="q19" value="B"> Mitochondrial membrane</label>
+                            <label class="quiz-option"><input type="radio" name="q19" value="C"> Zona Pellucida</label>
+                            <label class="quiz-option"><input type="radio" name="q19" value="D"> Cytoplasm</label>
+                        </div>
+
+                        <div class="pb-4">
+                            <p class="text-lg font-medium mb-3">Q20 (Fallopian Tube): After fertilisation, the resulting cell is a zygote. How many chromosomes does the zygote contain?</p>
+                            <label class="quiz-option"><input type="radio" name="q20" value="A"> $23$ (from the egg only)</label>
+                            <label class="quiz-option"><input type="radio" name="q20" value="B"> $46$ (23 from the sperm and 23 from the egg)</label>
+                            <label class="quiz-option"><input type="radio" name="q20" value="C"> $100$</label>
+                            <label class="quiz-option"><input type="radio" name="q20" value="D"> $1$</label>
+                        </div>
+                    </div>
+
+                    <button type="button" onclick="checkQuiz()" class="w-full py-3 px-4 bg-theme-primary text-white font-bold rounded-lg hover:bg-cyan-800 transition duration-150 shadow-lg mt-4">Submit Answers</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- 4. Results Section (Hidden initially) --><div id="results" class="mt-8 hidden bg-white p-8 rounded-xl shadow-lg border border-theme-border text-center">
+            <h2 class="text-3xl font-bold mb-4 text-theme-primary">Results</h2>
+            <p id="result-message" class="text-xl mb-6"></p>
+            <button id="next-button" onclick="resetGame()" class="py-3 px-8 bg-theme-fail text-white font-bold rounded-lg hover:bg-red-700 transition duration-150 shadow-md hidden">Try Again / Replay Race</button>
+        </div>
     </div>
 
-    <div id="game-container">
-        <object width="800" height="600" data="great-sperm-race.swf" id="sperm-game">
-            <param name="movie" value="great-sperm-race.swf">
-        </object>
+    <!-- Ruffle CDN Script (must be placed before the closing </body> tag) --><script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
 
-        <button onclick="showQuiz()" style="margin-top: 15px;">I Completed the Race - Go to Quiz</button>
-    </div>
+    <!-- Custom JavaScript Logic --><script>
+        const QUIZ_STAGES = [
+            { name: 'The Vagina', id: 'quiz-stage-1' },
+            { name: 'The Cervix', id: 'quiz-stage-2' },
+            { name: 'The Uterus', id: 'quiz-stage-3' },
+            { name: 'The Fallopian Tube', id: 'quiz-stage-4' }
+        ];
+        let currentQuizStage = 0; // 0-indexed stage number
 
-    <div id="quiz-modal">
-        <h2>Post-Race Assessment Questions</h2>
-        <form id="quiz-form">
-            <p><strong>Question 1:</strong> How many chromosomes does a sperm cell contribute to the fertilised egg?</p>
-            <label><input type="radio" name="q1" value="A"> 46</label><br>
-            <label><input type="radio" name="q1" value="B"> 23</label><br>
-            <label><input type="radio" name="q1" value="C"> 1</label><br>
-
-            <p><strong>Question 2:</strong> What is the main barrier that kills most sperm cells early in their journey?</p>
-            <label><input type="radio" name="q2" value="A"> Cilia</label><br>
-            <label><input type="radio" name="q2" value="B"> Immune System Cells</label><br>
-            <label><input type="radio" name="q2" value="C"> Acidity</label><br>
-
-            <button type="button" onclick="checkQuiz()">Submit Answers</button>
-        </form>
-    </div>
-
-    <div id="results" style="display: none;">
-        <h2>Results</h2>
-        <p id="result-message"></p>
-        <button id="next-button" onclick="resetGame()" style="display: none;">Try Again</button>
-    </div>
-
-    <script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
-
-    <script>
-        // Define the correct answers
+        // Define the correct answers for all 20 questions
         const CORRECT_ANSWERS = {
-            q1: 'B', // 23 chromosomes
-            q2: 'C'  // Acidity
+            q1: 'B', q2: 'B', q3: 'B', q4: 'C', q5: 'B',
+            q6: 'B', q7: 'B', q8: 'C', q9: 'B', q10: 'B',
+            q11: 'B', q12: 'B', q13: 'C', q14: 'C', q15: 'B',
+            q16: 'C', q17: 'C', q18: 'B', q19: 'C', q20: 'B'
         };
+        const TOTAL_QUESTIONS = 20;
+        const PASS_THRESHOLD = 16; // 80% of 20
+
+        function updatePageTitle() {
+            if (currentQuizStage > 0 && currentQuizStage <= QUIZ_STAGES.length) {
+                const stageInfo = QUIZ_STAGES[currentQuizStage - 1];
+                document.getElementById('page-title').textContent = `Post-Race Assessment: Stage ${currentQuizStage} - ${stageInfo.name}`;
+            } else if (currentQuizStage === 0) {
+                 document.getElementById('page-title').textContent = 'The Great Sperm Race: Educational Challenge';
+            }
+        }
+
+        function showStage(stageNum) {
+            QUIZ_STAGES.forEach((stage, index) => {
+                const element = document.getElementById(stage.id);
+                if (index + 1 === stageNum) {
+                    element.classList.remove('hidden');
+                } else {
+                    element.classList.add('hidden');
+                }
+            });
+            currentQuizStage = stageNum;
+            updatePageTitle();
+        }
 
         function startGame() {
-            document.getElementById('start-screen').style.display = 'none';
-            document.getElementById('game-container').style.display = 'block';
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('game-container').classList.remove('hidden');
             document.getElementById('page-title').textContent = 'The Great Sperm Race: In Progress';
         }
 
         function showQuiz() {
-            // Hide the game and show the quiz
-            document.getElementById('game-container').style.display = 'none';
-            document.getElementById('quiz-modal').style.display = 'block';
-            document.getElementById('page-title').textContent = 'Post-Race Assessment';
+            // Hide the game and show the quiz, starting at stage 1
+            document.getElementById('game-container').classList.add('hidden');
+            document.getElementById('quiz-modal').classList.remove('hidden');
+            showStage(1);
+        }
+
+        function nextStage() {
+            const nextStageNum = currentQuizStage + 1;
+            if (nextStageNum <= QUIZ_STAGES.length) {
+                showStage(nextStageNum);
+            }
         }
 
         function checkQuiz() {
             const form = document.getElementById('quiz-form');
             let correctCount = 0;
-            const totalQuestions = Object.keys(CORRECT_ANSWERS).length;
 
             for (const [question, correctAnswer] of Object.entries(CORRECT_ANSWERS)) {
-                const answer = form.elements[question].value;
-                if (answer === correctAnswer) {
+                // Ensure all questions are answered before submitting
+                if (form.elements[question].value === "") {
+                    // Use a visual cue instead of alert()
+                    const messageP = document.getElementById('result-message');
+                    messageP.innerHTML = `<span class="text-theme-fail font-bold">Please ensure all questions are answered before submitting.</span>`;
+                    
+                    // Briefly show and hide a temporary message in the results area
+                    const resultsDiv = document.getElementById('results');
+                    resultsDiv.classList.remove('hidden');
+                    document.getElementById('quiz-modal').classList.add('hidden');
+
+                    setTimeout(() => {
+                        resultsDiv.classList.add('hidden');
+                        document.getElementById('quiz-modal').classList.remove('hidden');
+                    }, 2500);
+                    return;
+                }
+
+                if (form.elements[question].value === correctAnswer) {
                     correctCount++;
                 }
             }
-
+            
+            // Proceed to results display
             const resultsDiv = document.getElementById('results');
             const messageP = document.getElementById('result-message');
             const nextButton = document.getElementById('next-button');
 
             // Hide the quiz and show the results area
-            document.getElementById('quiz-modal').style.display = 'none';
-            resultsDiv.style.display = 'block';
+            document.getElementById('quiz-modal').classList.add('hidden');
+            resultsDiv.classList.remove('hidden');
 
-            if (correctCount === totalQuestions) {
+            messageP.innerHTML = `You answered <span class="font-bold">${correctCount}/${TOTAL_QUESTIONS}</span> questions correctly.`;
+
+            if (correctCount >= PASS_THRESHOLD) {
                 // PASS CONDITION
-                messageP.innerHTML = `<span class="correct">Congratulations! You answered ${correctCount}/${totalQuestions} questions correctly. Lesson complete.</span>`;
-                nextButton.style.display = 'none'; // No need to replay
+                messageP.innerHTML += `<br><span class="text-theme-secondary font-bold">Excellent! You have achieved the passing score. Lesson complete.</span>`;
+                nextButton.classList.add('hidden'); // No need to replay
                 document.getElementById('page-title').textContent = 'Lesson Complete';
             } else {
                 // FAIL/REPLAY CONDITION
-                messageP.innerHTML = `<span class="incorrect">You answered ${correctCount}/${totalQuestions} questions correctly. Please replay the game to reinforce the biological concepts.</span>`;
-                nextButton.style.display = 'block'; // Show "Try Again" button
+                messageP.innerHTML += `<br><span class="text-theme-fail font-bold">Review Required. Please try the race and quiz again to reinforce the concepts.</span>`;
+                nextButton.classList.remove('hidden'); // Show "Try Again" button
                 nextButton.textContent = 'Replay Race';
                 document.getElementById('page-title').textContent = 'Review Required';
             }
@@ -128,12 +398,20 @@
 
         function resetGame() {
             // Reset the HTML elements to the start state
-            document.getElementById('results').style.display = 'none';
-            document.getElementById('start-screen').style.display = 'block';
-            document.getElementById('page-title').textContent = 'The Great Sperm Race: Start';
+            document.getElementById('results').classList.add('hidden');
+            document.getElementById('start-screen').classList.remove('hidden');
             
+            // Reset state
+            currentQuizStage = 0;
+            updatePageTitle();
+
             // Clear the quiz answers for the next attempt
             document.getElementById('quiz-form').reset();
+            // Ensure game container is hidden
+            document.getElementById('game-container').classList.add('hidden');
+            
+            // Ensure only the start screen is visible
+            document.getElementById('quiz-modal').classList.add('hidden');
         }
     </script>
 </body>
