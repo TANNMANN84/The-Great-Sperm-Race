@@ -3,28 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Great Sperm Race - Educational Access</title>
+    <title>The Great Sperm Race - Educational Quiz</title>
     <style>
-        /* Optional: Basic centering and styling for a cleaner look */
+        /* CSS to control layout and modal visibility */
         body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
             font-family: Arial, sans-serif;
-            margin-top: 20px;
+            text-align: center;
         }
+        #game-container, #quiz-modal, #results {
+            margin: 20px auto;
+            max-width: 800px;
+        }
+        #game-container {
+            /* Initially hidden until the user starts */
+            display: none;
+        }
+        #quiz-modal {
+            padding: 20px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+            text-align: left;
+            /* Initially hidden */
+            display: none;
+        }
+        .correct { color: green; font-weight: bold; }
+        .incorrect { color: red; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <h1>The Great Sperm Race</h1>
+    <h1 id="page-title">The Great Sperm Race: Start</h1>
 
-    <object width="800" height="600" data="great-sperm-race.swf">
-        <param name="movie" value="great-sperm-race.swf">
-        <p>Your browser requires a Flash Player to view this content, or Ruffle failed to load.</p>
-    </object>
+    <div id="start-screen">
+        <p>Your goal is to successfully guide the sperm to the egg. When you reach the final screen, press the "I Completed the Race" button below the game.</p>
+        <button onclick="startGame()">Start The Great Sperm Race</button>
+    </div>
+
+    <div id="game-container">
+        <object width="800" height="600" data="great-sperm-race.swf" id="sperm-game">
+            <param name="movie" value="great-sperm-race.swf">
+        </object>
+
+        <button onclick="showQuiz()" style="margin-top: 15px;">I Completed the Race - Go to Quiz</button>
+    </div>
+
+    <div id="quiz-modal">
+        <h2>Post-Race Assessment Questions</h2>
+        <form id="quiz-form">
+            <p><strong>Question 1:</strong> How many chromosomes does a sperm cell contribute to the fertilised egg?</p>
+            <label><input type="radio" name="q1" value="A"> 46</label><br>
+            <label><input type="radio" name="q1" value="B"> 23</label><br>
+            <label><input type="radio" name="q1" value="C"> 1</label><br>
+
+            <p><strong>Question 2:</strong> What is the main barrier that kills most sperm cells early in their journey?</p>
+            <label><input type="radio" name="q2" value="A"> Cilia</label><br>
+            <label><input type="radio" name="q2" value="B"> Immune System Cells</label><br>
+            <label><input type="radio" name="q2" value="C"> Acidity</label><br>
+
+            <button type="button" onclick="checkQuiz()">Submit Answers</button>
+        </form>
+    </div>
+
+    <div id="results" style="display: none;">
+        <h2>Results</h2>
+        <p id="result-message"></p>
+        <button id="next-button" onclick="resetGame()" style="display: none;">Try Again</button>
+    </div>
 
     <script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
 
+    <script>
+        // Define the correct answers
+        const CORRECT_ANSWERS = {
+            q1: 'B', // 23 chromosomes
+            q2: 'C'  // Acidity
+        };
+
+        function startGame() {
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('game-container').style.display = 'block';
+            document.getElementById('page-title').textContent = 'The Great Sperm Race: In Progress';
+        }
+
+        function showQuiz() {
+            // Hide the game and show the quiz
+            document.getElementById('game-container').style.display = 'none';
+            document.getElementById('quiz-modal').style.display = 'block';
+            document.getElementById('page-title').textContent = 'Post-Race Assessment';
+        }
+
+        function checkQuiz() {
+            const form = document.getElementById('quiz-form');
+            let correctCount = 0;
+            const totalQuestions = Object.keys(CORRECT_ANSWERS).length;
+
+            for (const [question, correctAnswer] of Object.entries(CORRECT_ANSWERS)) {
+                const answer = form.elements[question].value;
+                if (answer === correctAnswer) {
+                    correctCount++;
+                }
+            }
+
+            const resultsDiv = document.getElementById('results');
+            const messageP = document.getElementById('result-message');
+            const nextButton = document.getElementById('next-button');
+
+            // Hide the quiz and show the results area
+            document.getElementById('quiz-modal').style.display = 'none';
+            resultsDiv.style.display = 'block';
+
+            if (correctCount === totalQuestions) {
+                // PASS CONDITION
+                messageP.innerHTML = `<span class="correct">Congratulations! You answered ${correctCount}/${totalQuestions} questions correctly. Lesson complete.</span>`;
+                nextButton.style.display = 'none'; // No need to replay
+                document.getElementById('page-title').textContent = 'Lesson Complete';
+            } else {
+                // FAIL/REPLAY CONDITION
+                messageP.innerHTML = `<span class="incorrect">You answered ${correctCount}/${totalQuestions} questions correctly. Please replay the game to reinforce the biological concepts.</span>`;
+                nextButton.style.display = 'block'; // Show "Try Again" button
+                nextButton.textContent = 'Replay Race';
+                document.getElementById('page-title').textContent = 'Review Required';
+            }
+        }
+
+        function resetGame() {
+            // Reset the HTML elements to the start state
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('start-screen').style.display = 'block';
+            document.getElementById('page-title').textContent = 'The Great Sperm Race: Start';
+            
+            // Clear the quiz answers for the next attempt
+            document.getElementById('quiz-form').reset();
+        }
+    </script>
 </body>
 </html>
