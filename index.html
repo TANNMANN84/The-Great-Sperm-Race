@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Great Sperm Race: Educational Challenge</title>
-    <!-- Load Tailwind CSS for modern styling --><script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Tailwind CSS for modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -55,7 +56,8 @@
     <div class="w-full max-w-4xl">
         <h1 id="page-title" class="text-4xl font-extrabold text-theme-primary text-center mb-6">The Great Sperm Race: Educational Challenge</h1>
 
-        <!-- 1. Start Screen --><div id="start-screen" class="bg-white p-8 rounded-xl shadow-lg border border-theme-border">
+        <!-- 1. Start Screen -->
+        <div id="start-screen" class="bg-white p-8 rounded-xl shadow-lg border border-theme-border">
             <h2 class="text-2xl font-semibold text-theme-text-dark mb-4">Welcome to the Race for Life</h2>
             <p class="text-theme-text-light mb-6">Your task is to successfully guide the sperm to the egg, navigating the four major obstacles in the female reproductive system. Once the game indicates a successful fertilisation, press the button below the game screen to proceed to the quiz. You will need to click the 'Play' button on the game screen itself to start the Flash content.</p>
             <button onclick="startGame()" class="w-full py-3 px-4 bg-theme-primary text-white font-bold rounded-lg hover:bg-cyan-800 transition duration-150 shadow-md">
@@ -66,16 +68,19 @@
         <!-- 2. Game Container (Hidden initially) -->
         <div id="game-container" class="mt-8 hidden w-full max-w-4xl flex flex-col items-center">
             
-            <!-- RUFFLE PLAYER ELEMENT (Switched to preferred DIV method for simplicity) -->
-            <div id="sperm-game-player"
-                 width="800" height="600" 
-                 data-swf="great-sperm-race.swf"
+            <!-- 
+                FIXED: Replaced the <object> tag with a simple <div> container.
+                We will now manually load the Ruffle player into this div
+                using the Ruffle JavaScript API to avoid URL resolution errors.
+            -->
+            <div id="sperm-game-player-container"
                  class="mx-auto rounded-xl shadow-lg border border-theme-border bg-black"
-                 style="max-width: 100%; height: auto; width: 800px; height: 600px;">
-                <p class="text-white">The Ruffle player should be loading here. If this text remains, there is an issue with the SWF file path or Ruffle initialization.</p>
+                 style="max-width: 100%; width: 800px; height: 600px;">
+                <!-- Ruffle player will be loaded here by JavaScript -->
             </div>
 
-            <!-- Manual completion trigger button --><div class="text-center mt-4">
+            <!-- Manual completion trigger button -->
+            <div class="text-center mt-4">
                 <button onclick="showQuiz()" class="py-3 px-8 bg-theme-primary text-white font-bold rounded-lg hover:bg-cyan-800 transition duration-150 shadow-md">
                     I Completed the Race - Go to Quiz
                 </button>
@@ -253,7 +258,7 @@
                             <label class="quiz-option"><input type="radio" name="q18" value="A"> Less than 5 hours</label>
                             <label class="quiz-option"><input type="radio" name="q18" value="B"> Between $12$ and $24$ hours</label>
                             <label class="quiz-option"><input type="radio" name="q18" value="C"> About 7 days</label>
-                            <label class="quiz-option"><input type="radio" name="q18" value="D"> Up to $72$ hours</label>
+                            <label class="quiz-option"><input type="radio" name="q18" value="D"> Up to $72$ hours</D>
                         </div>
 
                         <div class="border-b border-gray-200 pb-4">
@@ -278,16 +283,22 @@
             </form>
         </div>
 
-        <!-- 4. Results Section (Hidden initially) --><div id="results" class="mt-8 hidden bg-white p-8 rounded-xl shadow-lg border border-theme-border text-center">
+        <!-- 4. Results Section (Hidden initially) -->
+        <div id="results" class="mt-8 hidden bg-white p-8 rounded-xl shadow-lg border border-theme-border text-center">
             <h2 class="text-3xl font-bold mb-4 text-theme-primary">Results</h2>
             <p id="result-message" class="text-xl mb-6"></p>
             <button id="next-button" onclick="resetGame()" class="py-3 px-8 bg-theme-fail text-white font-bold rounded-lg hover:bg-red-700 transition duration-150 shadow-md hidden">Try Again / Replay Race</button>
         </div>
     </div>
 
-    <!-- Ruffle CDN Script (must be placed before the closing </body> tag) --><script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
+    <!-- Ruffle CDN Script (must be placed before the closing </body> tag) -->
+    <!-- FIXED: Switched to the full ruffle.js library to get access to the Player API -->
+    <script src="https://unpkg.com/@ruffle-rs/ruffle/ruffle.js"></script>
 
-    <!-- Custom JavaScript Logic --><script>
+    <!-- Custom JavaScript Logic -->
+    <script>
+        let rufflePlayer = null; // To hold the Ruffle instance
+
         const QUIZ_STAGES = [
             { name: 'The Vagina', id: 'quiz-stage-1' },
             { name: 'The Cervix', id: 'quiz-stage-2' },
@@ -329,10 +340,55 @@
         }
 
         function startGame() {
-            // Shows the game container where Ruffle will load the SWF
+            // Shows the game container
             document.getElementById('start-screen').classList.add('hidden');
             document.getElementById('game-container').classList.remove('hidden');
             document.getElementById('page-title').textContent = 'The Great Sperm Race: In Progress';
+            
+            // --- NEW RUFFLE API LOGIC ---
+            // Manually load the Ruffle player to avoid URL construction errors
+            
+            // Check if Ruffle is loaded
+            if (window.RufflePlayer) {
+                window.RufflePlayer.config = {
+                    // Basic Ruffle configurations
+                    "publicPath": undefined,
+                    "polyfills": true,
+                };
+
+                // Find the container
+                const container = document.getElementById('sperm-game-player-container');
+                
+                // Clear container if we are restarting (e.g., from resetGame)
+                if (rufflePlayer) {
+                    rufflePlayer.remove();
+                }
+                container.innerHTML = ""; // Clear any old content or errors
+
+                // Create a new Ruffle player instance
+                try {
+                    rufflePlayer = window.RufflePlayer.newest().createPlayer();
+                    container.appendChild(rufflePlayer);
+
+                    // Load the SWF file directly
+                    // This avoids the relative path / base URL issue
+                    rufflePlayer.load("great-sperm-race.swf");
+                } catch (e) {
+                    console.error("Ruffle player failed to create or load SWF:", e);
+                    container.innerHTML = `<div class="p-4 text-white text-center">
+                        <p class="font-bold text-xl">Error Loading Game</p>
+                        <p>Ruffle player failed to load the game file.</p>
+                        <p class="text-sm text-gray-400">${e.message}</p>
+                    </div>`;
+                }
+
+            } else {
+                console.error("RufflePlayer API not found. Script may be blocked or failed to load.");
+                document.getElementById('sperm-game-player-container').innerHTML = `<div class="p-4 text-white text-center">
+                        <p class="font-bold text-xl">Error Loading Ruffle</p>
+                        <p>The Ruffle (Flash) player script failed to load. Please check your internet connection or ad blocker.</p>
+                    </div>`;
+            }
         }
 
         function showQuiz() {
@@ -417,7 +473,25 @@
             // Ensure game container and quiz are hidden
             document.getElementById('game-container').classList.add('hidden');
             document.getElementById('quiz-modal').classList.add('hidden');
+            
+            // --- NEW RUFFLE RESET LOGIC ---
+            // Safely remove the Ruffle player instance if it exists
+            if (rufflePlayer) {
+                try {
+                    rufflePlayer.remove(); // Remove the player from the DOM
+                } catch (e) {
+                    console.warn("Error removing Ruffle player:", e);
+                }
+                rufflePlayer = null; // Clear the reference
+            }
+            
+            // Clear the container in case it had error messages
+            const container = document.getElementById('sperm-game-player-container');
+            if (container) {
+                container.innerHTML = ""; // Clear any error messages
+            }
         }
     </script>
 </body>
 </html>
+
