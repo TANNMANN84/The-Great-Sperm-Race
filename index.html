@@ -124,7 +124,13 @@
 
         <!-- 3. Quiz Modal (Hidden initially) -->
         <div id="quiz-modal" class="mt-8 hidden bg-white p-8 rounded-xl shadow-lg border border-theme-border">
-            <h2 class="text-2xl font-semibold text-theme-text-dark mb-6">Post-Race Assessment</h2>
+            <!-- MODIFIED: Added flex container for title and new button -->
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-semibold text-theme-text-dark">Post-Race Assessment</h2>
+                <button type="button" onclick="returnToGame()" class="py-2 px-4 bg-gray-600 text-white font-bold rounded-lg hover:bg-gray-700 transition duration-150 shadow-md">
+                    Return to Game
+                </button>
+            </div>
             <form id="quiz-form" class="space-y-6">
 
                 <!-- Stage 1: Vagina (Q1-Q5) -->
@@ -430,6 +436,16 @@
             // Hide the game and show the quiz, starting at stage 1
             document.getElementById('game-container').classList.add('hidden');
             document.getElementById('quiz-modal').classList.remove('hidden');
+            
+            // --- ADDED: Pause the game ---
+            if (rufflePlayer) {
+                try {
+                    rufflePlayer.pause();
+                } catch (e) {
+                    console.warn("Error pausing Ruffle player:", e);
+                }
+            }
+
             showStage(1);
         }
 
@@ -437,6 +453,30 @@
             const nextStageNum = currentQuizStage + 1;
             if (nextStageNum <= QUIZ_STAGES.length) {
                 showStage(nextStageNum);
+            }
+        }
+
+        // --- ADDED: Function to return to the game from the quiz ---
+        function returnToGame() {
+            // Hide quiz, show game
+            document.getElementById('quiz-modal').classList.add('hidden');
+            document.getElementById('game-container').classList.remove('hidden');
+            
+            // Update title
+            document.getElementById('page-title').textContent = 'The Great Sperm Race: In Progress';
+
+            // Resume the game
+            if (rufflePlayer) {
+                try {
+                    rufflePlayer.play();
+                } catch (e) {
+                    console.warn("Error resuming Ruffle player:", e);
+                    // If resuming fails (e.g., player was destroyed), just restart
+                    startGame();
+                }
+            } else {
+                // If player doesn't exist for some reason, restart the game
+                startGame();
             }
         }
 
@@ -559,5 +599,6 @@
     </script>
 </body>
 </html>
+
 
 
