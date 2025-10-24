@@ -76,6 +76,13 @@
         #game-container:fullscreen .button-container {
             display: none;
         }
+
+        /* --- ADDED: Default size for the game player container --- */
+        /* We move the 800x600 size here from the in-line style */
+        #sperm-game-player-container {
+            width: 800px;
+            height: 600px;
+        }
     </style>
 </head>
 <body class="bg-theme-background min-h-screen p-4 flex flex-col items-center font-sans text-theme-text-dark">
@@ -95,9 +102,10 @@
         <!-- 2. Game Container (Hidden initially) -->
         <div id="game-container" class="mt-8 hidden w-full max-w-4xl flex flex-col items-center">
             
+            <!-- MODIFIED: Removed in-line width and height. These are now in the <style> block -->
             <div id="sperm-game-player-container"
                  class="mx-auto rounded-xl shadow-lg border border-theme-border bg-black"
-                 style="max-width: 100%; width: 800px; height: 600px;">
+                 style="max-width: 100%;">
                 <!-- Ruffle player will be loaded here by JavaScript -->
             </div>
 
@@ -551,4 +559,5 @@
     </script>
 </body>
 </html>
+
 
