@@ -64,18 +64,15 @@
         </div>
 
         <!-- 2. Game Container (Hidden initially) -->
-        <div id="game-container" class="mt-8 hidden w-full max-w-4xl">
+        <div id="game-container" class="mt-8 hidden w-full max-w-4xl flex flex-col items-center">
             
-            <!-- Responsive Container maintaining 4:3 Aspect Ratio (600/800 = 0.75) -->
-            <!-- CRITICAL FIX: Removed custom splash screen and autoplay=off -->
-            <div class="relative w-full mx-auto rounded-xl shadow-lg border border-theme-border bg-black" style="padding-bottom: 75%;">
-                
-                <!-- RUFFLE PLAYER ELEMENT (The actual game container) -->
-                <div id="sperm-game-player"
-                     class="absolute inset-0 flex items-center justify-center"
-                     data-swf="great-sperm-race.swf"> 
-                    <p class="text-white">Loading Flash content...</p>
-                </div>
+            <!-- RUFFLE PLAYER ELEMENT (Simplest fixed-size setup) -->
+            <!-- The dimensions (800x600) match the game's original aspect ratio -->
+            <div id="sperm-game-player"
+                 class="w-[800px] h-[600px] mx-auto rounded-xl shadow-lg border border-theme-border bg-black flex items-center justify-center"
+                 data-swf="great-sperm-race.swf"
+                 style="max-width: 100%; height: auto;"> 
+                <p class="text-white">The Ruffle player should be loading here. If this text remains, there is an issue with the SWF file path or Ruffle initialization.</p>
             </div>
 
             <!-- Manual completion trigger button --><div class="text-center mt-4">
@@ -336,8 +333,6 @@
             document.getElementById('start-screen').classList.add('hidden');
             document.getElementById('game-container').classList.remove('hidden');
             document.getElementById('page-title').textContent = 'The Great Sperm Race: In Progress';
-            
-            // Note: Ruffle will now load the game and show its own Play button due to the fix.
         }
 
         function showQuiz() {
@@ -422,8 +417,6 @@
             // Ensure game container and quiz are hidden
             document.getElementById('game-container').classList.add('hidden');
             document.getElementById('quiz-modal').classList.add('hidden');
-            
-            // When the start screen is shown, the game will be reloaded by Ruffle if needed.
         }
     </script>
 </body>
