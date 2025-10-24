@@ -49,6 +49,33 @@
             /* Styles for the individual quiz sections */
             transition: opacity 0.3s ease;
         }
+
+        /* --- ADDED: Styles for Fullscreen Mode --- */
+        /* Styles for when the game container is in fullscreen mode */
+        #game-container:fullscreen {
+            /* Make the container fill the screen */
+            width: 100vw;
+            height: 100vh;
+            padding: 0;
+            margin: 0;
+            background-color: #000; /* Black background for fullscreen */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Target the player *inside* the fullscreen container */
+        #game-container:fullscreen #sperm-game-player-container {
+            width: 100%;
+            height: 100%;
+            max-width: 100%;
+        }
+        
+        /* Hide the buttons when in fullscreen */
+        #game-container:fullscreen .button-container {
+            display: none;
+        }
     </style>
 </head>
 <body class="bg-theme-background min-h-screen p-4 flex flex-col items-center font-sans text-theme-text-dark">
@@ -68,11 +95,6 @@
         <!-- 2. Game Container (Hidden initially) -->
         <div id="game-container" class="mt-8 hidden w-full max-w-4xl flex flex-col items-center">
             
-            <!-- 
-                FIXED: Replaced the <object> tag with a simple <div> container.
-                We will now manually load the Ruffle player into this div
-                using the Ruffle JavaScript API to avoid URL resolution errors.
-            -->
             <div id="sperm-game-player-container"
                  class="mx-auto rounded-xl shadow-lg border border-theme-border bg-black"
                  style="max-width: 100%; width: 800px; height: 600px;">
@@ -80,7 +102,12 @@
             </div>
 
             <!-- Manual completion trigger button -->
-            <div class="text-center mt-4">
+            <!-- MODIFIED: Wrapped buttons in a flex container for side-by-side layout -->
+            <div class="button-container text-center mt-4 flex justify-center space-x-4">
+                <!-- ADDED: Fullscreen Button -->
+                <button onclick="toggleFullscreen()" id="fullscreen-btn" class="py-3 px-8 bg-gray-600 text-white font-bold rounded-lg hover:bg-gray-700 transition duration-150 shadow-md">
+                    Toggle Fullscreen
+                </button>
                 <button onclick="showQuiz()" class="py-3 px-8 bg-theme-primary text-white font-bold rounded-lg hover:bg-cyan-800 transition duration-150 shadow-md">
                     I Completed the Race - Go to Quiz
                 </button>
@@ -292,7 +319,6 @@
     </div>
 
     <!-- Ruffle CDN Script (must be placed before the closing </body> tag) -->
-    <!-- FIXED: Switched to the full ruffle.js library to get access to the Player API -->
     <script src="https://unpkg.com/@ruffle-rs/ruffle/ruffle.js"></script>
 
     <!-- Custom JavaScript Logic -->
@@ -346,33 +372,34 @@
             document.getElementById('page-title').textContent = 'The Great Sperm Race: In Progress';
             
             // --- NEW RUFFLE API LOGIC ---
-            // Manually load the Ruffle player to avoid URL construction errors
             
-            // Check if Ruffle is loaded
             if (window.RufflePlayer) {
                 window.RufflePlayer.config = {
-                    // Basic Ruffle configurations
                     "publicPath": undefined,
                     "polyfills": true,
                 };
 
-                // Find the container
                 const container = document.getElementById('sperm-game-player-container');
                 
-                // Clear container if we are restarting (e.g., from resetGame)
                 if (rufflePlayer) {
                     rufflePlayer.remove();
                 }
-                container.innerHTML = ""; // Clear any old content or errors
+                container.innerHTML = ""; 
 
-                // Create a new Ruffle player instance
                 try {
                     rufflePlayer = window.RufflePlayer.newest().createPlayer();
+                    
+                    // --- ADDED: Make Ruffle player fill container ---
+                    rufflePlayer.style.width = "100%";
+                    rufflePlayer.style.height = "100%";
+                    
                     container.appendChild(rufflePlayer);
 
-                    // Load the SWF file directly
-                    // This avoids the relative path / base URL issue
-                    rufflePlayer.load("great-sperm-race.swf");
+                    // --- MODIFIED: Added scale option ---
+                    rufflePlayer.load({
+                        url: "great-sperm-race.swf",
+                        scale: "letterbox" // Scales game to fit container, maintaining aspect ratio
+                    });
                 } catch (e) {
                     console.error("Ruffle player failed to create or load SWF:", e);
                     container.innerHTML = `<div class="p-4 text-white text-center">
@@ -410,9 +437,7 @@
             let correctCount = 0;
 
             for (const [question, correctAnswer] of Object.entries(CORRECT_ANSWERS)) {
-                // Check if the answer is selected for any question
                 if (form.elements[question].value === "") {
-                    // Temporarily show the results section with an error message
                     const resultsDiv = document.getElementById('results');
                     const messageP = document.getElementById('result-message');
                     resultsDiv.classList.remove('hidden');
@@ -420,11 +445,10 @@
 
                     messageP.innerHTML = `<span class="text-theme-fail font-bold">Please ensure all questions are answered before submitting.</span>`;
                     
-                    // Set a timeout to revert to the quiz view
                     setTimeout(() => {
                         resultsDiv.classList.add('hidden');
                         document.getElementById('quiz-modal').classList.remove('hidden');
-                        showStage(currentQuizStage); // Return to the current quiz stage
+                        showStage(currentQuizStage); 
                     }, 2500);
                     return;
                 }
@@ -434,61 +458,94 @@
                 }
             }
             
-            // Proceed to results display
             const resultsDiv = document.getElementById('results');
             const messageP = document.getElementById('result-message');
             const nextButton = document.getElementById('next-button');
 
-            // Hide the quiz and show the results area
             document.getElementById('quiz-modal').classList.add('hidden');
             resultsDiv.classList.remove('hidden');
 
             messageP.innerHTML = `You answered <span class="font-bold">${correctCount}/${TOTAL_QUESTIONS}</span> questions correctly.`;
 
             if (correctCount >= PASS_THRESHOLD) {
-                // PASS CONDITION
                 messageP.innerHTML += `<br><span class="text-theme-secondary font-bold">Excellent! You have achieved the passing score. Lesson complete.</span>`;
-                nextButton.classList.add('hidden'); // No need to replay
+                nextButton.classList.add('hidden'); 
                 document.getElementById('page-title').textContent = 'Lesson Complete';
             } else {
-                // FAIL/REPLAY CONDITION
                 messageP.innerHTML += `<br><span class="text-theme-fail font-bold">Review Required. Please try the race and quiz again to reinforce the concepts.</span>`;
-                nextButton.classList.remove('hidden'); // Show "Try Again" button
+                nextButton.classList.remove('hidden'); 
                 nextButton.textContent = 'Replay Race';
                 document.getElementById('page-title').textContent = 'Review Required';
             }
         }
 
         function resetGame() {
-            // Reset the HTML elements to the start state
             document.getElementById('results').classList.add('hidden');
             document.getElementById('start-screen').classList.remove('hidden');
             
-            // Reset state
             currentQuizStage = 0;
             updatePageTitle();
 
-            // Clear the quiz answers for the next attempt
             document.getElementById('quiz-form').reset();
-            // Ensure game container and quiz are hidden
             document.getElementById('game-container').classList.add('hidden');
             document.getElementById('quiz-modal').classList.add('hidden');
             
-            // --- NEW RUFFLE RESET LOGIC ---
-            // Safely remove the Ruffle player instance if it exists
             if (rufflePlayer) {
                 try {
-                    rufflePlayer.remove(); // Remove the player from the DOM
+                    rufflePlayer.remove(); 
                 } catch (e) {
                     console.warn("Error removing Ruffle player:", e);
                 }
-                rufflePlayer = null; // Clear the reference
+                rufflePlayer = null; 
             }
             
-            // Clear the container in case it had error messages
             const container = document.getElementById('sperm-game-player-container');
             if (container) {
-                container.innerHTML = ""; // Clear any error messages
+                container.innerHTML = ""; 
+            }
+        }
+
+        // --- ADDED: Fullscreen Logic ---
+
+        function updateFullscreenButton() {
+            const fsBtn = document.getElementById('fullscreen-btn');
+            if (!fsBtn) return; // Guard clause
+            
+            // Check for fullscreen element across browsers
+            if (document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement) {
+                fsBtn.textContent = 'Exit Fullscreen';
+            } else {
+                fsBtn.textContent = 'Toggle Fullscreen';
+            }
+        }
+
+        // Add event listeners to detect when user exits fullscreen (e.g., with 'Esc' key)
+        document.addEventListener('fullscreenchange', updateFullscreenButton);
+        document.addEventListener('webkitfullscreenchange', updateFullscreenButton);
+        document.addEventListener('msfullscreenchange', updateFullscreenButton);
+
+        function toggleFullscreen() {
+            const gameContainer = document.getElementById('game-container'); // Target the whole game area
+
+            // Check if we are currently in fullscreen
+            if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
+                // Enter fullscreen
+                if (gameContainer.requestFullscreen) {
+                    gameContainer.requestFullscreen();
+                } else if (gameContainer.webkitRequestFullscreen) { /* Safari */
+                    gameContainer.webkitRequestFullscreen();
+                } else if (gameContainer.msRequestFullscreen) { /* IE11 */
+                    gameContainer.msRequestFullscreen();
+                }
+            } else {
+                // Exit fullscreen
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) { /* Safari */
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) { /* IE11 */
+                    document.msExitFullscreen();
+                }
             }
         }
     </script>
