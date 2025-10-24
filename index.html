@@ -66,12 +66,12 @@
         <!-- 2. Game Container (Hidden initially) -->
         <div id="game-container" class="mt-8 hidden w-full max-w-4xl flex flex-col items-center">
             
-            <!-- RUFFLE PLAYER ELEMENT (Simplest fixed-size setup) -->
-            <!-- FIX: Reverted data-swf to a simple relative path for colocated files -->
+            <!-- RUFFLE PLAYER ELEMENT (Switched to preferred DIV method for simplicity) -->
             <div id="sperm-game-player"
-                 class="w-[800px] h-[600px] mx-auto rounded-xl shadow-lg border border-theme-border bg-black flex items-center justify-center"
-                 data-swf="great-sperm-race.swf" 
-                 style="max-width: 100%; height: auto;"> 
+                 width="800" height="600" 
+                 data-swf="great-sperm-race.swf"
+                 class="mx-auto rounded-xl shadow-lg border border-theme-border bg-black"
+                 style="max-width: 100%; height: auto; width: 800px; height: 600px;">
                 <p class="text-white">The Ruffle player should be loading here. If this text remains, there is an issue with the SWF file path or Ruffle initialization.</p>
             </div>
 
