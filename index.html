@@ -57,17 +57,25 @@
 
         <!-- 1. Start Screen --><div id="start-screen" class="bg-white p-8 rounded-xl shadow-lg border border-theme-border">
             <h2 class="text-2xl font-semibold text-theme-text-dark mb-4">Welcome to the Race for Life</h2>
-            <p class="text-theme-text-light mb-6">Your task is to successfully guide the sperm to the egg, navigating the four major obstacles in the female reproductive system. Once the game indicates a successful fertilisation, press the button below the game screen to proceed to the quiz.</p>
+            <p class="text-theme-text-light mb-6">Your task is to successfully guide the sperm to the egg, navigating the four major obstacles in the female reproductive system. Once the game indicates a successful fertilisation, press the button below the game screen to proceed to the quiz. You will need to click the 'Play' button on the game screen itself to start the Flash content.</p>
             <button onclick="startGame()" class="w-full py-3 px-4 bg-theme-primary text-white font-bold rounded-lg hover:bg-cyan-800 transition duration-150 shadow-md">
-                Start The Great Sperm Race
+                Proceed to Game Area
             </button>
         </div>
 
-        <!-- 2. Game Container (Hidden initially) --><div id="game-container" class="mt-8 hidden">
-            <!-- Ruffle will load the SWF file here using the data-swf attribute --><div id="sperm-game-player"
-                 class="w-[800px] h-[600px] mx-auto rounded-xl shadow-lg border border-theme-border bg-black flex items-center justify-center"
-                 data-swf="great-sperm-race.swf">
-                <p class="text-white">Loading Flash game via Ruffle...</p>
+        <!-- 2. Game Container (Hidden initially) -->
+        <div id="game-container" class="mt-8 hidden w-full max-w-4xl">
+            
+            <!-- Responsive Container maintaining 4:3 Aspect Ratio (600/800 = 0.75) -->
+            <!-- CRITICAL FIX: Removed custom splash screen and autoplay=off -->
+            <div class="relative w-full mx-auto rounded-xl shadow-lg border border-theme-border bg-black" style="padding-bottom: 75%;">
+                
+                <!-- RUFFLE PLAYER ELEMENT (The actual game container) -->
+                <div id="sperm-game-player"
+                     class="absolute inset-0 flex items-center justify-center"
+                     data-swf="great-sperm-race.swf"> 
+                    <p class="text-white">Loading Flash content...</p>
+                </div>
             </div>
 
             <!-- Manual completion trigger button --><div class="text-center mt-4">
@@ -324,9 +332,12 @@
         }
 
         function startGame() {
+            // Shows the game container where Ruffle will load the SWF
             document.getElementById('start-screen').classList.add('hidden');
             document.getElementById('game-container').classList.remove('hidden');
             document.getElementById('page-title').textContent = 'The Great Sperm Race: In Progress';
+            
+            // Note: Ruffle will now load the game and show its own Play button due to the fix.
         }
 
         function showQuiz() {
@@ -348,20 +359,21 @@
             let correctCount = 0;
 
             for (const [question, correctAnswer] of Object.entries(CORRECT_ANSWERS)) {
-                // Ensure all questions are answered before submitting
+                // Check if the answer is selected for any question
                 if (form.elements[question].value === "") {
-                    // Use a visual cue instead of alert()
-                    const messageP = document.getElementById('result-message');
-                    messageP.innerHTML = `<span class="text-theme-fail font-bold">Please ensure all questions are answered before submitting.</span>`;
-                    
-                    // Briefly show and hide a temporary message in the results area
+                    // Temporarily show the results section with an error message
                     const resultsDiv = document.getElementById('results');
+                    const messageP = document.getElementById('result-message');
                     resultsDiv.classList.remove('hidden');
                     document.getElementById('quiz-modal').classList.add('hidden');
 
+                    messageP.innerHTML = `<span class="text-theme-fail font-bold">Please ensure all questions are answered before submitting.</span>`;
+                    
+                    // Set a timeout to revert to the quiz view
                     setTimeout(() => {
                         resultsDiv.classList.add('hidden');
                         document.getElementById('quiz-modal').classList.remove('hidden');
+                        showStage(currentQuizStage); // Return to the current quiz stage
                     }, 2500);
                     return;
                 }
@@ -407,11 +419,11 @@
 
             // Clear the quiz answers for the next attempt
             document.getElementById('quiz-form').reset();
-            // Ensure game container is hidden
+            // Ensure game container and quiz are hidden
             document.getElementById('game-container').classList.add('hidden');
-            
-            // Ensure only the start screen is visible
             document.getElementById('quiz-modal').classList.add('hidden');
+            
+            // When the start screen is shown, the game will be reloaded by Ruffle if needed.
         }
     </script>
 </body>
